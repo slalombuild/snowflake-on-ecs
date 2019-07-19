@@ -11,7 +11,7 @@ Clone repository and change to project directory
 ```bash
 pwd
 /path/to/repo
-git clone https://github.com/davemasino/snowflake-on-ecs.git
+git clone https://github.com/SlalomBuild/snowflake-on-ecs.git
 cd snowflake-on-ecs
 ```
 
