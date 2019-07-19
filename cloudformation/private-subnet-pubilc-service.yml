@@ -1,0 +1,215 @@
+# Original file: 
+# https://github.com/awslabs/aws-cloudformation-templates/blob/master/aws/services/ECS/FargateLaunchType/services/private-subnet-public-service.yml#
+#
+# Copyright 2019 Slalom Build
+#
+# Modifications: 
+# * Added Airflow-specific defaults for CF parameters
+# * Set Service Name to Stack Name to support deploying 100 stacks in AWS DevDay workshop scenario
+# * Commented out load balancer resources and policies
+# * Integrated params with SSM Parameter Store
+# * Added RDS Postgres back end database for Airflow
+# * Added web ingress cidr parameter for inbound web traffic
+#
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy an Apache Airflow service on AWS Fargate, hosted in a public subnet and using a PostgreSQL RDS instance as the 
+             metadata store.
+Parameters:
+
+  StackName:
+    Type: String
+    Default: ecs-fargate-network
+    Description: The name of the parent Fargate networking stack that you created. Necessary
+                 to locate and reference resources created by that stack.
+
+  ImageUrl:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /airflow-ecs/ImageUrl
+    Description: The url of a docker image that contains the application process that
+                 will handle the traffic for this service
+  
+  ContainerPort:
+    Type: Number
+    Default: 8080
+    Description: What port number the application inside the docker container is binding to
+  
+  ContainerCpu:
+    Type: Number
+    Default: 1024
+    Description: How much CPU to give the container. 1024 is 1 CPU
+  
+  ContainerMemory:
+    Type: Number
+    Default: 4096
+    Description: How much memory in megabytes to give the container
+
+  # Cidr IP range for inbound web traffic. Use this value to avoid
+  # opening up any inbound ports to 0.0.0.0/0
+  AllowWebCidrIp:
+    Type: String
+    AllowedPattern: ((\d{1,3})\.){3}\d{1,3}/\d{1,2}
+    Description: The source CIDR IP range for inbound web traffic.
+
+  SnowflakeAccount:
+    Type: String
+    Description: Snowflake account ID
+
+  SnowflakeRegion:
+    Type: String
+    Description: Snowflake AWS region
+    Default: us-west-2
+  
+  DesiredCount:
+    Type: Number
+    Default: 1
+    Description: How many copies of the service task to run
+  
+  Role:
+    Type: String
+    Default: ""
+    Description: (Optional) An IAM role to give the service's containers if the code within needs to
+                 access other AWS resources like S3 buckets, DynamoDB tables, etc
+
+Conditions:
+  HasCustomRole: !Not [ !Equals [!Ref 'Role', ''] ]
+
+Resources:
+  # Security group for Public web traffic
+  PublicWebSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable inbound HTTP traffic on port 8080
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: !Ref AllowWebCidrIp
+      VpcId: 
+        Fn::ImportValue:
+            !Join [':', [!Ref 'StackName', 'VPCId']]
+
+  # Security Group for Airflow metadata store RDS instance
+  RDSVpcSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable DB access via port 5432
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: 
+            Fn::ImportValue: 
+              !Join [':', [!Ref 'StackName', 'FargateContainerSecurityGroup']]
+      VpcId:
+        Fn::ImportValue:
+          !Join [':', [!Ref 'StackName', 'VPCId']]
+          
+  # Rds subnet group
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties: 
+      DBSubnetGroupDescription: 'RDS Postgres Subnet Group'
+      SubnetIds: 
+        - Fn::ImportValue:
+            !Join [':', [!Ref 'StackName', 'PrivateSubnetOne']]
+        - Fn::ImportValue:
+            !Join [':', [!Ref 'StackName', 'PrivateSubnetTwo']]
+
+  # Airflow metadata store RDS instance
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Delete
+    Properties:
+      DBName: '{{resolve:ssm:/airflow-ecs/AirflowDbName:1}}'
+      Engine: postgres
+      PubliclyAccessible: false
+      MasterUsername: '{{resolve:ssm:/airflow-ecs/AirflowDbUser:1}}'
+      MasterUserPassword: '{{resolve:ssm-secure:/airflow-ecs/AirflowDbCntl:1}}'
+      DBInstanceClass: db.t3.small
+      AllocatedStorage: '5'
+      StorageEncrypted: true
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      VPCSecurityGroups:
+        - Ref: RDSVpcSecurityGroup
+
+  # The task definition. This is a simple metadata description of what
+  # container to run, and what resource requirements it has.
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Ref 'AWS::StackName'
+      Cpu: !Ref 'ContainerCpu'
+      Memory: !Ref 'ContainerMemory'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn:
+        Fn::ImportValue:
+          !Join [':', [!Ref 'StackName', 'ECSTaskExecutionRole']]
+      TaskRoleArn:
+        Fn::If:
+          - 'HasCustomRole'
+          - !Ref 'Role'
+          - !Ref "AWS::NoValue"
+      ContainerDefinitions:
+        - Name: !Ref 'AWS::StackName'
+          Cpu: !Ref 'ContainerCpu'
+          Memory: !Ref 'ContainerMemory'
+          Image: !Ref 'ImageUrl'
+          PortMappings:
+            - ContainerPort: !Ref 'ContainerPort'
+          Environment:
+            - Name: SNOWFLAKE_ACCOUNT
+              Value: !Ref SnowflakeAccount
+            - Name: SNOWFLAKE_REGION
+              Value: !Ref SnowflakeRegion
+            - Name: POSTGRES_HOST
+              Value: !GetAtt 'DBInstance.Endpoint.Address'
+            - Name: POSTGRES_PORT
+              Value: !GetAtt 'DBInstance.Endpoint.Port'
+            - Name: LOAD_EX
+              Value: 'n'
+            - Name: EXECUTOR
+              Value: 'Local'
+          Secrets:
+            - Name: SNOWFLAKE_USER
+              ValueFrom: /airflow-ecs/SnowflakeUser
+            - Name: SNOWFLAKE_PASSWORD
+              ValueFrom: /airflow-ecs/SnowflakeCntl
+            - Name: POSTGRES_DB
+              ValueFrom: /airflow-ecs/AirflowDbName
+            - Name: POSTGRES_USER
+              ValueFrom: /airflow-ecs/AirflowDbUser
+            - Name: POSTGRES_PASSWORD
+              ValueFrom: /airflow-ecs/AirflowDbCntl
+            - Name: FERNET_KEY
+              ValueFrom: /airflow-ecs/FernetKey
+
+  # The service. The service is a resource which allows you to run multiple
+  # copies of a type of task, and gather up their logs and metrics, as well
+  # as monitor the number of running tasks and replace any that have crashed
+  Service:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: !Ref 'AWS::StackName'
+      Cluster:
+        Fn::ImportValue:
+          !Join [':', [!Ref 'StackName', 'ClusterName']]
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 75
+      DesiredCount: !Ref 'DesiredCount'
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - Fn::ImportValue:
+                !Join [':', [!Ref 'StackName', 'FargateContainerSecurityGroup']]
+            - !Ref PublicWebSecurityGroup    
+          Subnets:
+            - Fn::ImportValue:
+                !Join [':', [!Ref 'StackName', 'PublicSubnetOne']]
+            - Fn::ImportValue:
+                !Join [':', [!Ref 'StackName', 'PublicSubnetTwo']]
+      TaskDefinition: !Ref 'TaskDefinition'
