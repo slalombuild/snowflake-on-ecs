@@ -157,7 +157,7 @@ aws cloudformation deploy --template-file ./cloudformation/private-subnet-pubilc
     --parameter-overrides \
         StackName=ecs-fargate-network \
         AllowWebCidrIp=185.245.87.200/32 \   # google "my ip"
-        SnowflakeAccount=ub61792
+        SnowflakeAccount=ab12345
 ```
 
 ## Running in AWS
