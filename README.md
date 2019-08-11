@@ -60,7 +60,7 @@ Tag your image with the repositoryUri value from the previous step
 
 ```bash
 docker tag slalombuild/airflow-ecs \
-999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.3
+999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.4
 ```
 
 Get the docker login authentication command string for your registry.
@@ -81,7 +81,7 @@ abcdef1234567890abcdef123 = https://999999999999.dkr.ecr.us-west-2.amazonaws.com
 Push the image to your ECR repository with the repositoryUri value from the earlier step.
 
 ```bash
-docker push 999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.3
+docker push 999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.4
 ```
 
 ### Set SSM Parameters
@@ -109,7 +109,7 @@ Set ECR image url
 
 ```bash
 aws ssm put-parameter --name /airflow-ecs/ImageUrl \
---type String --value "999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.3"
+--type String --value "999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.4"
 ```
 
 #### Secure String Parameters
@@ -151,26 +151,29 @@ aws cloudformation deploy --template-file ./cloudformation/private-vpc.yml \
 #### ECS Service Stack
 
 Create ECS Service and Task Definition
+
 ```bash
+# Hit https://www.whatsmyip.org for AllowWebCidrIp value
 aws cloudformation deploy --template-file ./cloudformation/private-subnet-pubilc-service.yml \
     --stack-name ecs-fargate-service \
     --parameter-overrides \
         StackName=ecs-fargate-network \
-        AllowWebCidrIp=185.245.87.200/32 \   # google "my ip"
+        AllowWebCidrIp=xxx.xxx.xxx.xxx/32 \
         SnowflakeAccount=ab12345
 ```
 
 ## Running in AWS
 
 ### Run Snowflake DAGs
+
 - Navigate to ECS in AWS Console
 - Browse to the Service you created
 - Get the public IP of the running task
-- Browse to the http://yourpublicip:8080 to reach the Airflow web UI
+- Browse to the http://yourtaskpublicip:8080 to reach the Airflow web UI
 - Enable the schedule for the `snowflake_source` DAG and manually trigger a launch
 - Once DAG runs are complete, do the same for the `snowflake_analytics` DAG
 - Once complete, query the `analytics` tables you just built in Snowflake
 
-## Running Locally with Docker
-
-- Coming soon!
+## Upcoming Features
+- Airflow Celery executor support for scaling out
+- Integration with [dbt](http://getdbt.com) for building data models

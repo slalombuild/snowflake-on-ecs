@@ -19,10 +19,10 @@ RUN set -ex \
     && pyenv install $PYTHON_VERSION \
     && pyenv global $PYTHON_VERSION \
     && pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir apache-airflow[crypto,postgres,celery]==1.10.3 werkzeug>=0.15.0 \
-    && pip install --no-cache-dir snowflake-connector-python==1.8.1 \
-    && pip install --no-cache-dir redis==3.2.1 \
-    && pip install --no-cache-dir pytest==4.6.3 \
+    && pip install --no-cache-dir apache-airflow[crypto,postgres,celery]==1.10.4 \
+    && pip install --no-cache-dir snowflake-connector-python==1.8.6 \
+    && pip install --no-cache-dir redis==3.3.6 \
+    && pip install --no-cache-dir pytest==5.0.1 \
     && yum clean all \
     && yum autoremove gcc tar make -y \
     && yum autoremove zlib-devel bzip2 bzip2-devel sqlite-devel openssl-devel \
