@@ -8,6 +8,7 @@
 # * Comment out DynamoDB endpoints
 # * Comment out ELB for AWS DevDay workshop scenario
 # * Add SSM get parameters to Task Execution role
+# * Added web ingress cidr parameter for inbound web traffic
 #
 AWSTemplateFormatVersion: '2010-09-09'
 Description: This stack deploys a Fargate cluster that is in a VPC with both

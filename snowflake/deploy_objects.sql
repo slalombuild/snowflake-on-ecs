@@ -1,10 +1,10 @@
 
 -- Pipeline objects
 use role etl;
-use database source;
+use database raw;
 
 
--- Source Stages
+-- Raw Stages
 create or replace stage public.datasets
 url = 's3://snowflake-lab/public/datasets'
 comment = 'Snowflake lab datasets';
@@ -14,7 +14,7 @@ url='s3://tableau-snowflake-quickstart'
 comment = 'Tableau quickstart datasets';
 
 
--- Source File formats
+-- Raw File formats
 create or replace file format public.csv
 type=csv
 compression = 'auto' field_delimiter = ',' 
@@ -30,7 +30,7 @@ timestamp_format = 'auto'
 null_if = ('\\n');
 
 
--- Source Tables
+-- Raw Tables
 create or replace table public.airline_raw
 (
     src variant not null,

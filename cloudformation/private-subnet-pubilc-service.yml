@@ -9,7 +9,6 @@
 # * Commented out load balancer resources and policies
 # * Integrated params with SSM Parameter Store
 # * Added RDS Postgres back end database for Airflow
-# * Added web ingress cidr parameter for inbound web traffic
 #
 AWSTemplateFormatVersion: '2010-09-09'
 Description: Deploy an Apache Airflow service on AWS Fargate, hosted in a public subnet and using a PostgreSQL RDS instance as the 

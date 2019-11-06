@@ -1,8 +1,9 @@
-FROM amazonlinux:2
+FROM amazonlinux:2.0.20191016.0
 
 LABEL maintainer="Dave Masino <davem@slalom.com>"
 
-ARG PYTHON_VERSION=3.7.3
+ARG PYTHON_VERSION=3.7.5
+ARG AIRFLOW_VERSION=1.10.6
 
 ENV AIRFLOW_HOME /airflow
 ENV PYENV_ROOT ${AIRFLOW_HOME}/.pyenv
@@ -19,10 +20,10 @@ RUN set -ex \
     && pyenv install $PYTHON_VERSION \
     && pyenv global $PYTHON_VERSION \
     && pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir apache-airflow[crypto,postgres,celery]==1.10.4 \
-    && pip install --no-cache-dir snowflake-connector-python==1.8.6 \
-    && pip install --no-cache-dir redis==3.3.6 \
-    && pip install --no-cache-dir pytest==5.0.1 \
+    && pip install --no-cache-dir cryptography==2.8 \
+    && pip install --no-cache-dir apache-airflow[crypto,postgres]==${AIRFLOW_VERSION} \
+    && pip install --no-cache-dir snowflake-connector-python==2.0.3 \
+    && pip install --no-cache-dir pytest==5.2.2 \
     && yum clean all \
     && yum autoremove gcc tar make -y \
     && yum autoremove zlib-devel bzip2 bzip2-devel sqlite-devel openssl-devel \

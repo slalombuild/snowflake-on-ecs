@@ -1,0 +1,31 @@
+version: '2.1'
+services:
+    postgres:
+        image: postgres:9.6-alpine
+        environment:
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+    webserver:
+        image: slalombuild/airflow-ecs:1.10.6
+        restart: always
+        depends_on:
+            - postgres
+        environment:
+            - LOAD_EX=n
+            - EXECUTOR=Local
+            # Set values for your Snowflake account
+            - SNOWFLAKE_ACCOUNT=ab12345
+            - SNOWFLAKE_REGION=us-west-2
+            - SNOWFLAKE_USER=snowflake_user
+            - SNOWFLAKE_PASSWORD=xxxxxxxx
+        volumes:
+            - ./airflow/dags:/airflow/dags
+        ports:
+            - "8080:8080"
+        command: webserver
+        healthcheck:
+            test: ["CMD-SHELL", "[ -f /airflow/airflow-webserver.pid ]"]
+            interval: 30s
+            timeout: 30s
+            retries: 3

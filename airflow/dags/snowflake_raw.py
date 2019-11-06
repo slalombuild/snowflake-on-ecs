@@ -18,27 +18,27 @@ default_args = {
 }
 
 dag = DAG(
-    'snowflake_source',
+    'snowflake_raw',
     default_args=default_args,
-    description='Snowflake source pipeline',
+    description='Snowflake raw pipeline',
     schedule_interval='0 */6 * * *',
 )
 
 t1 = SnowflakeOperator(
-    task_id='copy_source_airline_raw',
-    sql='sql/copy_source_airline_raw.sql',
+    task_id='copy_raw_airline',
+    sql='sql/copy_raw_airline.sql',
     snowflake_conn_id='snowflake_default',
     warehouse='load_wh',
-    database='source',
+    database='raw',
     autocommit=True,
     dag=dag)
 
 t2 = SnowflakeOperator(
-    task_id='copy_source_nyc_taxi_raw',
-    sql='sql/copy_source_nyc_taxi_raw.sql',
+    task_id='copy_raw_nyc_taxi',
+    sql='sql/copy_raw_nyc_taxi.sql',
     snowflake_conn_id='snowflake_default',
     warehouse='load_wh',
-    database='source',
+    database='raw',
     autocommit=True,
     dag=dag)
 

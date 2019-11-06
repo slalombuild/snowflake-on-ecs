@@ -64,4 +64,4 @@ select
     src:Year::int,
     'Airflow snowflake_analytics Dag'::string,
     convert_timezone('UTC' , current_timestamp )::timestamp_ntz
-from source.public.airline_raw;
+from raw.public.airline_raw;

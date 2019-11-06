@@ -1,8 +1,8 @@
 -- Databases 
 use role sysadmin;
 
-create or replace database source
-comment = 'Source database'
+create or replace database raw
+comment = 'Raw database'
 data_retention_time_in_days = 1;
 
 create or replace database analytics
@@ -23,9 +23,9 @@ create or replace role etl
 comment = 'Etl role';
 grant role etl to role sysadmin;
 
-grant ownership on database source to role etl;
+grant ownership on database raw to role etl;
 grant ownership on database analytics to role etl;
-grant ownership on schema source.public to role etl;
+grant ownership on schema raw.public to role etl;
 grant ownership on schema analytics.public to role etl;
 
 
@@ -33,10 +33,10 @@ create or replace role reporting
 comment = 'Reporting role';
 grant role reporting to role sysadmin;
 
-grant usage on database source to role reporting;
+grant usage on database raw to role reporting;
 grant usage on database analytics to role reporting;
 grant usage on database sandbox to role reporting;
-grant usage on schema source.public to role reporting;
+grant usage on schema raw.public to role reporting;
 grant usage on schema analytics.public to role reporting;
 grant usage, create table, create view 
 on schema sandbox.reporting to role reporting;
@@ -45,7 +45,7 @@ on schema sandbox.reporting to role reporting;
 -- Permissions on future tables 
 use role accountadmin;
 
-grant select on future tables in schema source.public 
+grant select on future tables in schema raw.public 
 to role reporting;
 grant select on future tables in schema analytics.public to 
 role reporting;
@@ -85,6 +85,6 @@ password = '__CHANGE__'
 must_change_password = true
 default_role = etl
 default_warehouse = load_wh
-default_namespace = source.public;
+default_namespace = raw.public;
 grant role etl to user snowflake_user;
 grant role reporting to user snowflake_user;

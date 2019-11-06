@@ -48,4 +48,4 @@ select
     total_amount::number(15, 2),
     'Airflow snowflake_analytics Dag'::string,
     convert_timezone('UTC' , current_timestamp )::timestamp_ntz
-from source.public.nyc_taxi_raw;
+from raw.public.nyc_taxi_raw;

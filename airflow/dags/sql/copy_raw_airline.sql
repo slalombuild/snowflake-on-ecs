@@ -4,7 +4,7 @@ from (
   select t.$1,
   metadata$filename,
   metadata$file_row_number,
-  'Airflow snowflake_source Dag',
+  'Airflow snowflake_raw Dag',
   convert_timezone('UTC' , current_timestamp )::timestamp_ntz
   from @datasets/airline/ t
 )

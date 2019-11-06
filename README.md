@@ -9,15 +9,23 @@ A compact framework for automating a Snowflake analytics pipeline on Amazon ECS.
 Clone repository and change to project directory
 
 ```bash
-pwd
+$ pwd
 /path/to/repo
-git clone https://github.com/SlalomBuild/snowflake-on-ecs.git
-cd snowflake-on-ecs
+$ git clone https://github.com/SlalomBuild/snowflake-on-ecs.git
+$ cd snowflake-on-ecs
+```
+
+## Installing Requirements
+
+Install requirements for running tests and deploying to AWS
+
+```bash
+$ pip install -r requirements-dev.txt 
 ```
 
 ## Setting up Snowflake
 
-Setup the Snowflake framework and deploy the `source` database objects.
+Setup the Snowflake framework and deploy the `raw` database objects.
 
 - Create Snowflake trial account.
 - Log in as your Snowflake account user.
@@ -25,8 +33,8 @@ Setup the Snowflake framework and deploy the `source` database objects.
 - This creates the Snowflake databases, warehouses, roles, and grants
 - Log in as `snowflake_user` and change your password.
 - Log back in as `snowflake_user`.
-- Run `deploy_source.sql` script in Snowflake Web UI.
-- This creates the source tables, stages, and file formats.
+- Run `deploy_objects.sql` script in Snowflake Web UI.
+- This creates the raw tables, stages, and file formats.
 
 
 ## Deploying to AWS
@@ -36,7 +44,7 @@ Setup the Snowflake framework and deploy the `source` database objects.
 Start Docker host and run the following command.
 
 ``` bash
-docker build -t slalombuild/airflow-ecs .
+$ docker build -t slalombuild/airflow-ecs .
 ```
 
 ### Deploy Docker image to Amazon ECR
@@ -44,7 +52,7 @@ docker build -t slalombuild/airflow-ecs .
 Create the ECR repository in your AWS account using the AWS CLI tool
 
 ```bash
-aws ecr create-repository --repository-name slalombuild/airflow-ecs --region us-west-2
+$ aws ecr create-repository --repository-name slalombuild/airflow-ecs --region us-west-2
 {
     "repository": {
         "repositoryArn": "arn:aws:ecr:us-west-2:999999999999:repository/slalombuild/airflow-ecs",
@@ -59,14 +67,14 @@ aws ecr create-repository --repository-name slalombuild/airflow-ecs --region us-
 Tag your image with the repositoryUri value from the previous step
 
 ```bash
-docker tag slalombuild/airflow-ecs \
-999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.4
+$ docker tag slalombuild/airflow-ecs \
+999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.6
 ```
 
 Get the docker login authentication command string for your registry.
 
 ```bash
-aws ecr get-login --no-include-email --region us-west-2
+$ aws ecr get-login --no-include-email --region us-west-2
 ```
 
 Run the `docker login` command that was returned in the previous step. This command provides an authorization token that is valid for 12 hours.
@@ -81,7 +89,7 @@ abcdef1234567890abcdef123 = https://999999999999.dkr.ecr.us-west-2.amazonaws.com
 Push the image to your ECR repository with the repositoryUri value from the earlier step.
 
 ```bash
-docker push 999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.4
+docker push 999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.6
 ```
 
 ### Set SSM Parameters
@@ -109,7 +117,7 @@ Set ECR image url
 
 ```bash
 aws ssm put-parameter --name /airflow-ecs/ImageUrl \
---type String --value "999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.4"
+--type String --value "999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.6"
 ```
 
 #### Secure String Parameters
@@ -145,6 +153,7 @@ Create VPC, Subnets, and ECS cluster
 ```bash
 aws cloudformation deploy --template-file ./cloudformation/private-vpc.yml \
     --stack-name ecs-fargate-network \
+    --region us-west-2 \
     --capabilities CAPABILITY_IAM
 ```
 
@@ -156,6 +165,7 @@ Create ECS Service and Task Definition
 # Hit https://www.whatsmyip.org for AllowWebCidrIp value
 aws cloudformation deploy --template-file ./cloudformation/private-subnet-pubilc-service.yml \
     --stack-name ecs-fargate-service \
+    --region us-west-2 \
     --parameter-overrides \
         StackName=ecs-fargate-network \
         AllowWebCidrIp=xxx.xxx.xxx.xxx/32 \
@@ -169,11 +179,29 @@ aws cloudformation deploy --template-file ./cloudformation/private-subnet-pubilc
 - Navigate to ECS in AWS Console
 - Browse to the Service you created
 - Get the public IP of the running task
-- Browse to the http://yourtaskpublicip:8080 to reach the Airflow web UI
-- Enable the schedule for the `snowflake_source` DAG and manually trigger a launch
+- Browse to the http://\<yourtaskpublicip\>:8080 to reach the Airflow web UI
+- Enable the schedule for the `snowflake_raw` DAG and manually trigger a launch
+- Once DAG runs are complete, do the same for the `snowflake_analytics` DAG
+- Once complete, query the `analytics` tables you just built in Snowflake
+
+## Running Locally in Docker
+
+### Run Docker Compose
+
+- Edit the `docker-compose-local.yml` file, replacing the values from your Snowflake account
+- Make sure docker host is started,
+- Run docker compose command to start up Airflow and Postgres DB containers. 
+
+```bash
+$ docker-compose -f docker-compose-local.yml up -d
+```
+### Run Snowflake DAGs
+
+- Browse to the http://localhost:8080 to reach the Airflow web UI
+- Enable the schedule for the `snowflake_raw` DAG and manually trigger a launch
 - Once DAG runs are complete, do the same for the `snowflake_analytics` DAG
 - Once complete, query the `analytics` tables you just built in Snowflake
 
 ## Upcoming Features
-- Airflow Celery executor support for scaling out
+- An ECSOperator for executing tasks in Fargate
 - Integration with [dbt](http://getdbt.com) for building data models
