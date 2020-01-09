@@ -3,7 +3,7 @@ FROM amazonlinux:2.0.20191016.0
 LABEL maintainer="Dave Masino <davem@slalom.com>"
 
 ARG PYTHON_VERSION=3.7.5
-ARG AIRFLOW_VERSION=1.10.6
+ARG AIRFLOW_VERSION=1.10.7
 
 ENV AIRFLOW_HOME /airflow
 ENV PYENV_ROOT ${AIRFLOW_HOME}/.pyenv
