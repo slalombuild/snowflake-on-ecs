@@ -242,6 +242,7 @@ Successfully created/updated stack - ecs-fargate-service
 ```bash
 $ docker-compose -f docker-compose-local.yml up -d
 ```
+
 ### Run Snowflake DAGs
 
 - Browse to the http://localhost:8080 to reach the Airflow web UI
@@ -249,13 +250,12 @@ $ docker-compose -f docker-compose-local.yml up -d
 - Once DAG runs are complete, do the same for the `snowflake_analytics` DAG
 - Once complete, query the `analytics` tables you just built in Snowflake
 
-
-
 ## Automated Testing
 
 ### Run Tox
 
 Run the following tests using Python `tox`. The tests are configured in the `tox.ini` file
+
 - Cloudformation lint
 - flake8 Python lint
 - Airflow tests
@@ -277,6 +277,7 @@ ______________________________________________________ summary__________________
 ```
 
 ## Upcoming Features
+
 - An ECSOperator for executing tasks in Fargate
 - Integration with [dbt](http://getdbt.com) for building data models
 - Serverless version using AWS Lambda and Step Functions
