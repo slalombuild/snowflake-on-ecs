@@ -42,10 +42,10 @@ def airflow_build(dag_path, test_path):
     :return: returns the docker container object.
     """
 
-    image_name = "slalombuild/airflow-ecs"
+    image_name = "slalombuild/airflow-ecs:latest"
 
     client = docker.from_env()
-    #  client.images.pull(image_name)
+    # client.images.pull(image_name)
     running_container = client.containers.run(
         image_name,
         detach=True,

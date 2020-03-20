@@ -221,8 +221,6 @@ Successfully created/updated stack - ecs-fargate-service
 
 ## Running in AWS
 
-### Run Snowflake DAGs
-
 - Navigate to ECS in AWS Console
 - Browse to the Service you created
 - Get the public IP of the running task
@@ -233,17 +231,13 @@ Successfully created/updated stack - ecs-fargate-service
 
 ## Running Locally in Docker
 
-### Run Docker Compose
-
 - Edit the `docker-compose-local.yml` file, replacing the values from your Snowflake account
 - Make sure docker host is started,
 - Run docker compose command to start up Airflow and Postgres DB containers. 
 
 ```bash
-$ docker-compose -f docker-compose-local.yml up -d
+docker-compose -f docker-compose-local.yml up -d
 ```
-
-### Run Snowflake DAGs
 
 - Browse to the http://localhost:8080 to reach the Airflow web UI
 - Enable the schedule for the `snowflake_raw` DAG and manually trigger a launch
