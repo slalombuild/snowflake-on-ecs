@@ -75,7 +75,7 @@ Tag your image with the repositoryUri value from the previous step
 
 ```bash
 docker tag slalombuild/airflow-ecs \
-999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.7
+999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.9
 ```
 
 Get the docker login authentication command string for your registry.
@@ -100,7 +100,7 @@ Login Succeeded
 Push the image to your ECR repository with the repositoryUri value from the earlier step.
 
 ```bash
-$ docker push 999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.7
+$ docker push 999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.9
 The push refers to repository [999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs]
 1491e4384c9e: Pushed
 309c14d6a58f: Pushed
@@ -108,7 +108,7 @@ ad3a7ed741d6: Pushed
 5ed16ea2a772: Pushed
 fd12edf2a904: Pushed
 fdf6c4a26006: Pushed
-1.10.7: digest: sha256:b854fa72f5f01e0a8ce3a8c4267ce2d6e849533de299d6f9763751fce069119e size: 1574
+1.10.9: digest: sha256:b854fa72f5f01e0a8ce3a8c4267ce2d6e849533de299d6f9763751fce069119e size: 1574
 ```
 
 ### Set SSM Parameters
@@ -148,7 +148,8 @@ Set ECR image url
 
 ```bash
 $ aws ssm put-parameter --name /airflow-ecs/ImageUrl \
---type String --value "999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.7"
+--region us-west-2 \
+--type String --value "999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.9"
 {
     "Version": 1,
     "Tier": "Standard"
@@ -224,7 +225,7 @@ Successfully created/updated stack - ecs-fargate-service
 - Navigate to ECS in AWS Console
 - Browse to the Service you created
 - Get the public IP of the running task
-- Browse to the http://\<yourtaskpublicip\>:8080 to reach the Airflow web UI
+- Browse to the `http://\<yourtaskpublicip\>:8080` to reach the Airflow web UI
 - Enable the schedule for the `snowflake_raw` DAG and manually trigger a launch
 - Once DAG runs are complete, do the same for the `snowflake_analytics` DAG
 - Once complete, query the `analytics` tables you just built in Snowflake
@@ -233,13 +234,13 @@ Successfully created/updated stack - ecs-fargate-service
 
 - Edit the `docker-compose-local.yml` file, replacing the values from your Snowflake account
 - Make sure docker host is started,
-- Run docker compose command to start up Airflow and Postgres DB containers. 
+- Run docker compose command to start up Airflow and Postgres DB containers.
 
 ```bash
 docker-compose -f docker-compose-local.yml up -d
 ```
 
-- Browse to the http://localhost:8080 to reach the Airflow web UI
+- Browse to the `http://localhost:8080` to reach the Airflow web UI
 - Enable the schedule for the `snowflake_raw` DAG and manually trigger a launch
 - Once DAG runs are complete, do the same for the `snowflake_analytics` DAG
 - Once complete, query the `analytics` tables you just built in Snowflake
