@@ -7,7 +7,7 @@ services:
             - POSTGRES_PASSWORD=airflow
             - POSTGRES_DB=airflow
     webserver:
-        image: slalombuild/airflow-ecs:1.10.7
+        image: slalombuild/airflow-ecs:latest
         restart: always
         depends_on:
             - postgres

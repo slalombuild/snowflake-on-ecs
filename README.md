@@ -66,7 +66,11 @@ $ aws ecr create-repository --repository-name slalombuild/airflow-ecs --region u
         "registryId": "999999999999",
         "repositoryName": "slalombuild/airflow-ecs",
         "repositoryUri": "999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs",
-        "createdAt": 1560650383.0
+        "createdAt": 1584829898.0,
+        "imageTagMutability": "MUTABLE",
+        "imageScanningConfiguration": {
+            "scanOnPush": false
+        }
     }
 }
 ```
