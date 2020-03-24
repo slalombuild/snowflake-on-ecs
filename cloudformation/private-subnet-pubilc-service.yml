@@ -51,12 +51,11 @@ Parameters:
 
   SnowflakeAccount:
     Type: String
-    Description: Snowflake account ID
+    Description: Snowflake Account Name (<account_name>.snowflakecomputing.com)
 
   SnowflakeRegion:
     Type: String
-    Description: Snowflake AWS region
-    Default: us-west-2
+    Description: Snowflake Region (Region associated with your Snowflake account)
   
   DesiredCount:
     Type: Number
