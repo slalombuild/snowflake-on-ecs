@@ -55,4 +55,11 @@ def airflow_build(dag_path, test_path):
             test_path: {"bind": "/airflow/test/", "mode": "rw"},
         },
     )
+    running_container.exec_run(
+        "airflow initdb", detach=True
+    )  # docker execute command to initialize the airflow db
+    running_container.exec_run(
+        "airflow scheduler", detach=True
+    )  # docker execute command to start airflow scheduler
+
     return running_container

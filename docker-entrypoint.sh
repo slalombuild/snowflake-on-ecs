@@ -86,8 +86,8 @@ case "$1" in
     airflow connections -a --conn_id $SNOWFLAKE_CONN_ID --conn_type Snowflake --conn_host $SNOWFLAKE_HOST \
         --conn_schema $SNOWFLAKE_SCHEMA --conn_login $SNOWFLAKE_USER --conn_password $SNOWFLAKE_PASSWORD \
         --conn_extra '{"account": "'$SNOWFLAKE_ACCOUNT'", "region": "'$SNOWFLAKE_REGION'", "role": "'$SNOWFLAKE_ROLE'"}'
-    if [ "$AIRFLOW__CORE__EXECUTOR" = "LocalExecutor" ]; then
-      # With the "Local" executor it should all run in one container.
+    if [ "$AIRFLOW__CORE__EXECUTOR" = "LocalExecutor" ] || [ "$AIRFLOW__CORE__EXECUTOR" = "SequentialExecutor" ]; then
+      # With the "Local" and "Sequential" executors it should all run in one container.
       airflow scheduler &
     fi
     exec airflow webserver
