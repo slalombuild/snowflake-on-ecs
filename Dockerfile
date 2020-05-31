@@ -23,6 +23,7 @@ RUN set -ex \
     && pip install --no-cache-dir cryptography==2.8 \
     && pip install --no-cache-dir apache-airflow[crypto,postgres]==${AIRFLOW_VERSION} \
     && pip install --no-cache-dir snowflake-connector-python==2.2.2 \
+    && pip install --no-cache-dir SQLAlchemy==1.3.15 \
     && pip install --no-cache-dir pytest==5.4.1 \
     && yum clean all \
     && yum autoremove gcc tar make -y \
