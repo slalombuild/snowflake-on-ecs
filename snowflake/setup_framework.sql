@@ -23,8 +23,8 @@ create or replace role etl
 comment = 'Etl role';
 grant role etl to role sysadmin;
 
-grant ownership on database raw to role etl;
-grant ownership on database analytics to role etl;
+grant usage on database raw to role etl;
+grant usage on database analytics to role etl;
 grant ownership on schema raw.public to role etl;
 grant ownership on schema analytics.public to role etl;
 
