@@ -51,7 +51,7 @@ Parameters:
 
   SnowflakeAccount:
     Type: String
-    Description: Snowflake Account Name (<account_name>.snowflakecomputing.com)
+    Description: Snowflake Account Name (Account name part of hostname <account_name>.snowflakecomputing.com)
 
   SnowflakeRegion:
     Type: String
