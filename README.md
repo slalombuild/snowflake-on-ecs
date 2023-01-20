@@ -2,7 +2,7 @@
 
 A compact framework for automating a Snowflake analytics pipeline on Amazon ECS.
 
-![alt text](https://snowflake-lab.s3-us-west-2.amazonaws.com/public/images/snowflake_ecs_arch.png "Snowflake on ECS Architecture")
+![alt text](images/snowflake-on-ecs-arch.png "Snowflake on ECS Architecture")
 
 ## Getting Started
 
