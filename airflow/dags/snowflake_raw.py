@@ -24,16 +24,16 @@ dag = DAG(
     schedule_interval='0 */6 * * *',
 )
 
-t1 = SnowflakeOperator(
-    task_id='copy_raw_airline',
-    sql='sql/copy_raw_airline.sql',
-    snowflake_conn_id='snowflake_default',
-    warehouse='load_wh',
-    database='raw',
-    autocommit=True,
-    dag=dag)
+# t1 = SnowflakeOperator(
+#     task_id='copy_raw_airline',
+#     sql='sql/copy_raw_airline.sql',
+#     snowflake_conn_id='snowflake_default',
+#     warehouse='load_wh',
+#     database='raw',
+#     autocommit=True,
+#     dag=dag)
 
-t2 = SnowflakeOperator(
+t1 = SnowflakeOperator(
     task_id='copy_raw_nyc_taxi',
     sql='sql/copy_raw_nyc_taxi.sql',
     snowflake_conn_id='snowflake_default',
@@ -42,4 +42,5 @@ t2 = SnowflakeOperator(
     autocommit=True,
     dag=dag)
 
-t1 >> t2
+# t1 >> t2
+t1

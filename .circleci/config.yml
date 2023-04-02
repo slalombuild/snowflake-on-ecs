@@ -14,14 +14,14 @@ jobs:
       - run: 
           name: Test Docker image
           command: |
-            docker run slalombuild/airflow-ecs version | grep '1.10.9'
-      # - run: 
-      #     name: Verify image size
-      #     command: |
-      #       docker images | grep slalombuild/airflow-ecs | grep 'MB$'
+            docker run slalombuild/airflow-ecs version | grep '1.10.15'
+      - run: 
+          name: Verify image size
+          command: |
+            docker images | grep slalombuild/airflow-ecs | grep 'MB$'
       - run:
           name: "Set Python version"
-          command: pyenv global 3.7.0
+          command: pyenv global 3.8.0
       - run: 
           name: Run Python tests
           command: |
