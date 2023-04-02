@@ -34,16 +34,16 @@ t1 = SnowflakeOperator(
     autocommit=True,
     dag=dag)
 
-t2 = SnowflakeOperator(
-    task_id='create_analytics_airline',
-    sql='sql/create_analytics_airline.sql',
-    snowflake_conn_id='snowflake_default',
-    warehouse='load_wh',
-    database='analytics',
-    autocommit=True,
-    dag=dag)
+# t2 = SnowflakeOperator(
+#     task_id='create_analytics_airline',
+#     sql='sql/create_analytics_airline.sql',
+#     snowflake_conn_id='snowflake_default',
+#     warehouse='load_wh',
+#     database='analytics',
+#     autocommit=True,
+#     dag=dag)
 
-t3 = SnowflakeOperator(
+t2 = SnowflakeOperator(
     task_id='create_analytics_nyc_taxi',
     sql='sql/create_analytics_nyc_taxi.sql',
     snowflake_conn_id='snowflake_default',
@@ -52,4 +52,5 @@ t3 = SnowflakeOperator(
     autocommit=True,
     dag=dag)
 
-t1 >> t2 >> t3
+# t1 >> t2 >> t3
+t1 >> t2

@@ -1,34 +1,36 @@
-FROM amazonlinux:2.0.20191016.0
+FROM amazonlinux:2023.0.20230322.0
 
 LABEL maintainer="Dave Masino <davem@slalom.com>"
 
-ARG PYTHON_VERSION=3.7.6
-ARG AIRFLOW_VERSION=1.10.9
+ARG PYTHON_VERSION=3.8.10
+ARG PYTHON_MAJOR_VERSION=3.8
+ARG AIRFLOW_VERSION=1.10.15
+ARG CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_MAJOR_VERSION}.txt"
 
 ENV AIRFLOW_HOME /airflow
 ENV PYENV_ROOT ${AIRFLOW_HOME}/.pyenv
 ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 
+
 RUN set -ex \
     && yum update -y \
     && yum install git gcc tar make -y \
     && yum install zlib-devel bzip2 bzip2-devel readline-devel sqlite \
-        sqlite-devel openssl-devel xz xz-devel libffi-devel findutils -y \
+        sqlite-devel openssl-devel xz xz-devel libffi-devel findutils patch -y \
     && yum install nmap-ncat -y \
     && useradd -ms /bin/bash -d ${AIRFLOW_HOME} airflow \
-    && git clone https://github.com/pyenv/pyenv.git ${AIRFLOW_HOME}/.pyenv \
+    && git clone -c http.sslVerify=false https://github.com/pyenv/pyenv.git ${AIRFLOW_HOME}/.pyenv \
     && pyenv install $PYTHON_VERSION \
     && pyenv global $PYTHON_VERSION \
     && pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir cryptography==2.8 \
-    && pip install --no-cache-dir apache-airflow[crypto,postgres]==${AIRFLOW_VERSION} \
-    && pip install --no-cache-dir snowflake-connector-python==2.2.2 \
-    && pip install --no-cache-dir SQLAlchemy==1.3.15 \
-    && pip install --no-cache-dir pytest==5.4.1 \
+    && pip install --no-cache-dir cryptography==40.0.1 \
+    && pip install --no-cache-dir --trusted-host raw.githubusercontent.com apache-airflow[crypto,postgres]==${AIRFLOW_VERSION} --constraint ${CONSTRAINT_URL} \
+    && pip install --no-cache-dir snowflake-connector-python==3.0.2 \
+    && pip install --no-cache-dir pytest==7.2.2 \
     && yum clean all \
     && yum autoremove gcc tar make -y \
     && yum autoremove zlib-devel bzip2 bzip2-devel sqlite-devel openssl-devel \
-        xz xz-devel libffi-devel findutils -y \
+        xz xz-devel libffi-devel findutils patch -y \
     && rm -rf \
         /tmp/* \
         /var/tmp/* \
@@ -50,4 +52,3 @@ USER airflow
 WORKDIR ${AIRFLOW_HOME}
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["webserver"]
-

@@ -1,7 +1,7 @@
 version: '2.1'
 services:
     postgres:
-        image: postgres:9.6-alpine
+        image: postgres:13.10-alpine
         environment:
             - POSTGRES_USER=airflow
             - POSTGRES_PASSWORD=airflow
@@ -15,10 +15,10 @@ services:
             - LOAD_EX=n
             - EXECUTOR=Local
             # Set values for your Snowflake account
-            - SNOWFLAKE_ACCOUNT=ab12345
+            - SNOWFLAKE_ACCOUNT=youraccount
             - SNOWFLAKE_REGION=us-west-2
             - SNOWFLAKE_USER=snowflake_user
-            - SNOWFLAKE_PASSWORD=xxxxxxxx
+            - SNOWFLAKE_PASSWORD=yourpassword
         volumes:
             - ./airflow/dags:/airflow/dags
         ports:

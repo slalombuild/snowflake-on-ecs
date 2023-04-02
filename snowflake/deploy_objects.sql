@@ -5,9 +5,9 @@ use database raw;
 
 
 -- Raw Stages
-create or replace stage public.datasets
+/* create or replace stage public.datasets
 url = 's3://snowflake-lab/public/datasets'
-comment = 'Snowflake lab datasets';
+comment = 'Snowflake lab datasets'; */
 
 create or replace stage public.quickstart
 url='s3://tableau-snowflake-quickstart'
@@ -31,14 +31,14 @@ null_if = ('\\n');
 
 
 -- Raw Tables
-create or replace table public.airline_raw
+/* create or replace table public.airline_raw
 (
     src variant not null,
     src_filename string not null,
     src_file_row_num int not null,
     create_process string not null,
     create_ts timestamp_ntz not null
-);
+); */
 
 create or replace table public.nyc_taxi_raw 
 (

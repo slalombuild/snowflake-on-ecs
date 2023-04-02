@@ -27,6 +27,7 @@ TRY_LOOP="20"
 
 # Defaults and back-compat
 : "${AIRFLOW__CORE__FERNET_KEY:=${FERNET_KEY:=$(python -c "from cryptography.fernet import Fernet; FERNET_KEY = Fernet.generate_key().decode(); print(FERNET_KEY)")}}"
+: "${AIRFLOW__CORE__SECRET_KEY:=${SECRET_KEY:=$(python -c "from cryptography.fernet import Fernet; SECRET_KEY = Fernet.generate_key().decode(); print(SECRET_KEY)")}}"
 : "${AIRFLOW__CORE__EXECUTOR:=${EXECUTOR:-Sequential}Executor}"
 
 export \
