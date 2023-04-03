@@ -3,7 +3,7 @@ version: 2
 jobs:
   build_and_test:
     machine:
-      image: ubuntu-1604:201903-01
+      image: ubuntu-2204:2023.02.1
     working_directory: ~/snowflake-on-ecs
     steps:
       - checkout
@@ -21,12 +21,12 @@ jobs:
             docker images | grep slalombuild/airflow-ecs | grep 'MB$'
       - run:
           name: "Set Python version"
-          command: pyenv global 3.8.0
+          command: pyenv global 3.11.1
       - run: 
           name: Run Python tests
           command: |
             pip install --upgrade pip
-            pip install -r requirements-dev.txt
+            pip install tox
             tox
 workflows:
   version: 2

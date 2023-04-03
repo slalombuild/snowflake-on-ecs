@@ -20,6 +20,7 @@ Install requirements for running tests and deploying to AWS
 
 ```bash
 pip install -r requirements-dev.txt
+alias aws='awsv2'
 ```
 
 ## Setting up Snowflake
@@ -79,7 +80,7 @@ Tag your image with the repositoryUri value from the previous step
 
 ```bash
 docker tag slalombuild/airflow-ecs \
-999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.9
+999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.15
 ```
 
 Get the docker login authentication command string for your registry.
@@ -104,7 +105,7 @@ Login Succeeded
 Push the image to your ECR repository with the repositoryUri value from the earlier step.
 
 ```bash
-$ docker push 999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.9
+$ docker push 999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.15
 The push refers to repository [999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs]
 1491e4384c9e: Pushed
 309c14d6a58f: Pushed
@@ -112,7 +113,7 @@ ad3a7ed741d6: Pushed
 5ed16ea2a772: Pushed
 fd12edf2a904: Pushed
 fdf6c4a26006: Pushed
-1.10.9: digest: sha256:b854fa72f5f01e0a8ce3a8c4267ce2d6e849533de299d6f9763751fce069119e size: 1574
+1.10.15: digest: sha256:b854fa72f5f01e0a8ce3a8c4267ce2d6e849533de299d6f9763751fce069119e size: 1574
 ```
 
 ### Set SSM Parameters
@@ -153,7 +154,7 @@ Set ECR image url
 ```bash
 $ aws ssm put-parameter --name /airflow-ecs/ImageUrl \
 --region us-west-2 \
---type String --value "999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.9"
+--type String --value "999999999999.dkr.ecr.us-west-2.amazonaws.com/slalombuild/airflow-ecs:1.10.15"
 {
     "Version": 1,
     "Tier": "Standard"
